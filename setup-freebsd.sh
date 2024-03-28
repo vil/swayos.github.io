@@ -51,195 +51,199 @@ check(){
 #sudo pkg upgrade
 #check "$?" "pkg upgrade"
 
+# Check if user has root
+if [ $(whoami) = "root" ]; then
+    log "Installing env"
+    sudo pkg install -y \
+        git \
+        zsh \
+        zsh-autosuggestions \
+        pipewire \
+        xdg-desktop-portal-wlr \
+        xwayland \
+        wdisplays \
+        wob \
+        grim \
+        slurp \
+        waybar \
+        wofi \
+        foot \
+        nautilus \
+        libreoffice \
+        gnome-system-monitor \
+        system-config-printer \
+        cups \
+        lxsession \
+        wl-clipboard \
+        pavucontrol \
+        pamixer \
+        emacs-nox \
+        adapta-gtk-theme \
+        meson \
+        pkgconf \
+        cmake \
+        wayland-protocols \
+        seatd \
+        chromium \
+        meson \
+        ninja \
+        sway \
+        swaybg \
+        swayidle \
+        swaylock \
+        octopkg \
+        sdl2 \
+        jbig2dec \
+        drm-kmod \
+        mupdf \
+        mujs \
+        gumbo
 
-log "Installing env"
-sudo pkg install -y \
-     git \
-     zsh \
-     zsh-autosuggestions \
-     pipewire \
-     xdg-desktop-portal-wlr \
-     xwayland \
-     wdisplays \
-     wob \
-     grim \
-     slurp \
-     waybar \
-     wofi \
-     foot \
-     nautilus \
-     libreoffice \
-     gnome-system-monitor \
-     system-config-printer \
-     cups \
-     lxsession \
-     wl-clipboard \
-     pavucontrol \
-     pamixer \
-     emacs-nox \
-     adapta-gtk-theme \
-     meson \
-     pkgconf \
-     cmake \
-     wayland-protocols \
-     seatd \
-     chromium \
-     meson \
-     ninja \
-     sway \
-     swaybg \
-     swayidle \
-     swaylock \
-     octopkg \
-     sdl2 \
-     jbig2dec \
-     drm-kmod \
-     mupdf \
-     mujs \
-     gumbo
+    log "Adding user to seatd and video group"
+    sudo pw usermod $USER -G video
+    sudo sysrc seatd_enable=YES
 
-log "Adding user to seatd and video group"
-sudo pw usermod $USER -G video
-sudo sysrc seatd_enable=YES
+    log "Install ffmpeg 5"
 
-log "Install ffmpeg 5"
+    sudo pkg install -y \
+        gcc \
+        devel/nasm \
+        textproc/texi2html \
+        graphics/frei0r \
+        multimedia/v4l_compat \
+        devel/gmake \
+        devel/pkgconf \
+        lang/perl5.32 \
+        fdk-aac \
+        multimedia/aom \
+        multimedia/libass \
+        multimedia/dav1d \
+        graphics/libdrm \
+        x11-fonts/fontconfig \
+        print/freetype2 \
+        math/gmp \
+        security/gnutls \
+        audio/lame \
+        textproc/libxml2 \
+        audio/opus \
+        multimedia/svt-av1 \
+        multimedia/libv4l \
+        multimedia/libva \
+        multimedia/libvdpau \
+        multimedia/vmaf \
+        audio/libvorbis \
+        multimedia/libvpx \
+        graphics/webp \
+        multimedia/libx264 \
+        multimedia/x265
 
-sudo pkg install -y \
-     gcc \
-     devel/nasm \
-     textproc/texi2html \
-     graphics/frei0r \
-     multimedia/v4l_compat \
-     devel/gmake \
-     devel/pkgconf \
-     lang/perl5.32 \
-     fdk-aac \
-     multimedia/aom \
-     multimedia/libass \
-     multimedia/dav1d \
-     graphics/libdrm \
-     x11-fonts/fontconfig \
-     print/freetype2 \
-     math/gmp \
-     security/gnutls \
-     audio/lame \
-     textproc/libxml2 \
-     audio/opus \
-     multimedia/svt-av1 \
-     multimedia/libv4l \
-     multimedia/libva \
-     multimedia/libvdpau \
-     multimedia/vmaf \
-     audio/libvorbis \
-     multimedia/libvpx \
-     graphics/webp \
-     multimedia/libx264 \
-     multimedia/x265
+    log "Building FFMPEG 5.1.2"
+    wget https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.gz
+    check "$?" "WGET FFMPEG"
+    tar -xvzf ffmpeg-5.1.2.tar.gz
+    check "$?" "TAR FFMPEG"
+    cd ffmpeg-5.1.2
+    ./configure \
+        --prefix=/usr/local/ \
+        --libdir=/usr/local/lib/ \
+        --bindir=/usr/local/bin/ \
+        --pkg-config-flags="--static" \
+        --extra-cflags="-I$HOME/ffmpeg_build/include" \
+        --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
+        --extra-libs=-lpthread \
+        --extra-libs=-lm \
+        --enable-gpl \
+        --enable-libfdk_aac \
+        --enable-libfreetype \
+        --enable-libmp3lame \
+        --enable-libopus \
+        --enable-libvpx \
+        --enable-libx264 \
+        --enable-libx265 \
+        --enable-nonfree \
+        --enable-shared \
+        --disable-vulkan
 
-log "Building FFMPEG 5.1.2"
-wget https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.gz
-check "$?" "WGET FFMPEG"
-tar -xvzf ffmpeg-5.1.2.tar.gz
-check "$?" "TAR FFMPEG"
-cd ffmpeg-5.1.2
-./configure \
-    --prefix=/usr/local/ \
-    --libdir=/usr/local/lib/ \
-    --bindir=/usr/local/bin/ \
-    --pkg-config-flags="--static" \
-    --extra-cflags="-I$HOME/ffmpeg_build/include" \
-    --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
-    --extra-libs=-lpthread \
-    --extra-libs=-lm \
-    --enable-gpl \
-    --enable-libfdk_aac \
-    --enable-libfreetype \
-    --enable-libmp3lame \
-    --enable-libopus \
-    --enable-libvpx \
-    --enable-libx264 \
-    --enable-libx265 \
-    --enable-nonfree \
-    --enable-shared \
-    --disable-vulkan
-
-check "$?" "CONF FFMPEG"
-gmake
-check "$?" "MAKE FFMPEG"
-sudo gmake install
-check "$?" "ISNTALL FFMPEG"
-cd ..
-# rm -rf ffmpeg-5.1.2
-log "FFMPEG 5.1.2 installed"
-
-
-log "Cloning swayOS repo"
-git clone https://github.com/swayos/swayos.github.io.git
-cd swayos.github.io
+    check "$?" "CONF FFMPEG"
+    gmake
+    check "$?" "MAKE FFMPEG"
+    sudo gmake install
+    check "$?" "ISNTALL FFMPEG"
+    cd ..
+    # rm -rf ffmpeg-5.1.2
+    log "FFMPEG 5.1.2 installed"
 
 
-log "Copying settings to home folder"
-cp -f -R home/. ~/
-check "$?" "cp"
+    log "Cloning swayOS repo"
+    git clone https://github.com/swayos/swayos.github.io.git
+    cd swayos.github.io
 
 
-log "Starting services"
-sudo sysrc seatd_enable=YES
+    log "Copying settings to home folder"
+    cp -f -R home/. ~/
+    check "$?" "cp"
 
 
-log "Linking software store"
-sudo ln /usr/local/bin/octopkg /usr/local/bin/appstore
+    log "Starting services"
+    sudo sysrc seatd_enable=YES
 
 
-log "Installing sov"
-
-export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
-export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
-
-git clone https://github.com/milgra/sov
-cd sov
-meson setup build --buildtype=release
-ninja -C build
-sudo ninja -C build install
-cd ..
+    log "Linking software store"
+    sudo ln /usr/local/bin/octopkg /usr/local/bin/appstore
 
 
-log "Installing wcp"
-git clone https://github.com/milgra/wcp
-cd wcp
-meson setup build --buildtype=release
-ninja -C build
-sudo ninja -C build install
-cd ..
+    log "Installing sov"
+
+    export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
+    export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
+
+    git clone https://github.com/milgra/sov
+    cd sov
+    meson setup build --buildtype=release
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
 
 
-log "Installing vmp"
-git clone https://github.com/milgra/vmp
-cd vmp
-meson setup build --buildtype=release
-ninja -C build
-sudo ninja -C build install
-cd ..
+    log "Installing wcp"
+    git clone https://github.com/milgra/wcp
+    cd wcp
+    meson setup build --buildtype=release
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
 
 
-log "Installing mmfm"
-git clone https://github.com/milgra/mmfm
-cd mmfm
-meson setup build --buildtype=release
-ninja -C build
-sudo ninja -C build install
-cd ..
-
-sudo service seatd start
-
-log "Cleaning up"
-cd ..
-# rm -f -R swayos.github.io
-check "$?" "rm"
-
-log "Changing shell to zsh"
-chsh -s /usr/local/bin/zsh
-check "$?" "chsh"
+    log "Installing vmp"
+    git clone https://github.com/milgra/vmp
+    cd vmp
+    meson setup build --buildtype=release
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
 
 
-log "Setup is done, please log out and log in back again ( type exit )"
+    log "Installing mmfm"
+    git clone https://github.com/milgra/mmfm
+    cd mmfm
+    meson setup build --buildtype=release
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
+
+    sudo service seatd start
+
+    log "Cleaning up"
+    cd ..
+    # rm -f -R swayos.github.io
+    check "$?" "rm"
+
+    log "Changing shell to zsh"
+    chsh -s /usr/local/bin/zsh
+    check "$?" "chsh"
+
+
+    log "Setup is done, please log out and log in back again ( type exit )"
+else          
+    echo "Please run this script as root!"
+fi

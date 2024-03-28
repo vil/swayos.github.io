@@ -21,189 +21,194 @@ check(){
     fi
 }
 
-log "Refreshing package db"
-sudo apt-get update -y
-check "$?" "apt-get update"
-sudo apt-get upgrade -y
-check "$?" "apt-get upgrade"
+# Check if user has root
+if [ $(whoami) = "root" ]; then
+    log "Refreshing package db"
+    sudo apt-get update -y
+    check "$?" "apt-get update"
+    sudo apt-get upgrade -y
+    check "$?" "apt-get upgrade"
 
 
-log "Installing packages"
-sudo apt-get install -y \
-     git \
-     zsh \
-     zsh-autosuggestions \
-     iwd \
-     bluez \
-     blueman \
-     pipewire \
-     pipewire-pulse \
-     pipewire-audio-client-libraries \
-     pipewire-bin \
-     xdg-desktop-portal-wlr \
-     xwayland \
-     wayland-protocols \
-     sway \
-     swaybg \
-     swayidle \
-     swaylock \
-     pamixer \
-     wdisplays \
-     wob \
-     grim \
-     slurp \
-     waybar \
-     wofi \
-     brightnessctl \
-     foot \
-     chromium \
-     nautilus \
-     libreoffice \
-     gnome-system-monitor \
-     system-config-printer \
-     cups \
-     xfonts-terminus \
-     lxsession \
-     wl-clipboard \
-     pavucontrol \
-     emacs-nox \
-     meson \
-     gnome-software \
-     unzip \
-     pkg-config \
-     wayland-protocols \
-     libwayland-dev \
-     libfreetype-dev \
-     libgtk-3-dev \
-     libgtk-4-dev \
-     libglew-dev \
-     libqrencode-dev \
-     scdoc \
-     libsdl2-dev \
-     libswscale-dev \
-     libmupdf-dev \
-     libmujs-dev \
-     libopenjp2-7-dev \
-     libgumbo-dev \
-     libavutil-dev \
-     libavcodec-dev \
-     libavdevice-dev \
-     libavformat-dev \
-     libswscale-dev \
-     libswresample-dev \
-     libxkbcommon-dev \
-     libjbig2dec0-dev
+    log "Installing packages"
+    sudo apt-get install -y \
+        git \
+        zsh \
+        zsh-autosuggestions \
+        iwd \
+        bluez \
+        blueman \
+        pipewire \
+        pipewire-pulse \
+        pipewire-audio-client-libraries \
+        pipewire-bin \
+        xdg-desktop-portal-wlr \
+        xwayland \
+        wayland-protocols \
+        sway \
+        swaybg \
+        swayidle \
+        swaylock \
+        pamixer \
+        wdisplays \
+        wob \
+        grim \
+        slurp \
+        waybar \
+        wofi \
+        brightnessctl \
+        foot \
+        chromium \
+        nautilus \
+        libreoffice \
+        gnome-system-monitor \
+        system-config-printer \
+        cups \
+        xfonts-terminus \
+        lxsession \
+        wl-clipboard \
+        pavucontrol \
+        emacs-nox \
+        meson \
+        gnome-software \
+        unzip \
+        pkg-config \
+        wayland-protocols \
+        libwayland-dev \
+        libfreetype-dev \
+        libgtk-3-dev \
+        libgtk-4-dev \
+        libglew-dev \
+        libqrencode-dev \
+        scdoc \
+        libsdl2-dev \
+        libswscale-dev \
+        libmupdf-dev \
+        libmujs-dev \
+        libopenjp2-7-dev \
+        libgumbo-dev \
+        libavutil-dev \
+        libavcodec-dev \
+        libavdevice-dev \
+        libavformat-dev \
+        libswscale-dev \
+        libswresample-dev \
+        libxkbcommon-dev \
+        libjbig2dec0-dev
 
 
-log "Cloning swayOS repo"
-git clone https://github.com/swayos/swayos.github.io.git
-cd swayos.github.io
+    log "Cloning swayOS repo"
+    git clone https://github.com/swayos/swayos.github.io.git
+    cd swayos.github.io
 
-log "Copying settings to home folder"
-cp -f -R home/. ~/
-check "$?" "cp"
-
-
-log "Starting services"
-sudo systemctl enable iwd --now
-sudo systemctl enable bluetooth --now
-sudo systemctl enable cups --now
+    log "Copying settings to home folder"
+    cp -f -R home/. ~/
+    check "$?" "cp"
 
 
-log "Installing iwgtk"
-git clone https://github.com/J-Lentz/iwgtk
-cd iwgtk
-meson setup build --buildtype=release
-ninja -C build
-sudo ninja -C build install
-cd ..
+    log "Starting services"
+    sudo systemctl enable iwd --now
+    sudo systemctl enable bluetooth --now
+    sudo systemctl enable cups --now
 
 
-log "Linking software store"
-sudo ln /usr/bin/gnome-software /usr/bin/appstore
+    log "Installing iwgtk"
+    git clone https://github.com/J-Lentz/iwgtk
+    cd iwgtk
+    meson setup build --buildtype=release
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
 
 
-log "Linking zsh-autosuggestions"
-sudo mkdir -p /usr/share/zsh/plugins/zsh-autosuggestions
-sudo ln /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+    log "Linking software store"
+    sudo ln /usr/bin/gnome-software /usr/bin/appstore
 
 
-log "Linking polkit"
-sudo mkdir -p /usr/lib/polkit-gnome
-sudo ln /usr/bin/lxpolkit /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+    log "Linking zsh-autosuggestions"
+    sudo mkdir -p /usr/share/zsh/plugins/zsh-autosuggestions
+    sudo ln /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 
-log "Installing sov"
-git clone https://github.com/milgra/sov
-cd sov
-meson build
-ninja -C build
-sudo ninja -C build install
-cd ..
+    log "Linking polkit"
+    sudo mkdir -p /usr/lib/polkit-gnome
+    sudo ln /usr/bin/lxpolkit /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
 
-log "Install kuid"
-git clone https://github.com/milgra/kuid
-check "$?" "GIT KUID"
-cd kuid
-meson setup build --buildtype=release
-check "$?" "BUILD KUID"
-ninja -C build
-check "$?" "BUILD KUID"
-sudo ninja -C build install
-check "$?" "INSTALL KUID"
-cd ..
-rm -rf kuid
-log "sov installed"
+    log "Installing sov"
+    git clone https://github.com/milgra/sov
+    cd sov
+    meson build
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
 
 
-log "Install wcp"
-git clone https://github.com/milgra/wcp
-check "$?" "GIT WCP"
-cd wcp
-mkdir ~/.config/wcp
-cp wcp-debian.sh ~/.config/wcp/wcp.sh
-cp -R res ~/.config/wcp/
-cd ..
+    log "Install kuid"
+    git clone https://github.com/milgra/kuid
+    check "$?" "GIT KUID"
+    cd kuid
+    meson setup build --buildtype=release
+    check "$?" "BUILD KUID"
+    ninja -C build
+    check "$?" "BUILD KUID"
+    sudo ninja -C build install
+    check "$?" "INSTALL KUID"
+    cd ..
+    rm -rf kuid
+    log "sov installed"
 
 
-log "Install wfl"
-git clone https://github.com/milgra/wfl
-check "$?" "GIT WFL"
-cd wfl
-mkdir ~/.config/wfl
-cp wfl.sh ~/.config/wfl/
-cp -R res ~/.config/wfl/
-cd ..
+    log "Install wcp"
+    git clone https://github.com/milgra/wcp
+    check "$?" "GIT WCP"
+    cd wcp
+    mkdir ~/.config/wcp
+    cp wcp-debian.sh ~/.config/wcp/wcp.sh
+    cp -R res ~/.config/wcp/
+    cd ..
 
 
-log "Installing vmp"
-git clone https://github.com/milgra/vmp
-cd vmp
-meson build
-ninja -C build
-sudo ninja -C build install
-cd ..
+    log "Install wfl"
+    git clone https://github.com/milgra/wfl
+    check "$?" "GIT WFL"
+    cd wfl
+    mkdir ~/.config/wfl
+    cp wfl.sh ~/.config/wfl/
+    cp -R res ~/.config/wfl/
+    cd ..
 
 
-log "Installing mmfm"
-git clone https://github.com/milgra/mmfm
-cd mmfm
-meson build
-ninja -C build
-sudo ninja -C build install
-cd ..
+    log "Installing vmp"
+    git clone https://github.com/milgra/vmp
+    cd vmp
+    meson build
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
 
 
-log "Cleaning up"
-cd ..
-rm -f -R swayos.github.io
-check "$?" "rm"
+    log "Installing mmfm"
+    git clone https://github.com/milgra/mmfm
+    cd mmfm
+    meson build
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
 
 
-log "Changing shell to zsh"
-chsh -s /bin/zsh
-check "$?" "chsh"
+    log "Cleaning up"
+    cd ..
+    rm -f -R swayos.github.io
+    check "$?" "rm"
 
 
-log "Setup is done, please log out and log in back again ( type exit )"
+    log "Changing shell to zsh"
+    chsh -s /bin/zsh
+    check "$?" "chsh"
+
+
+    log "Setup is done, please log out and log in back again ( type exit )"
+else          
+    echo "Please run this script as root!"
+fi
